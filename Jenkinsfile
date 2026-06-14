@@ -15,7 +15,6 @@ pipeline {
 
     environment {
         COURSE = "Jenkins"
-        appVersion = ""
         ACC_ID = "074654842955"
         PROJECT = "roboshop"
         COMPONENT = "catalogue"
@@ -32,7 +31,7 @@ pipeline {
             steps {
                 script {
                     def packageJSON = readJSON file: 'package.json'
-                    env.appVersion = packageJSON.version
+                    env.appVersion = packageJSON['version']   
                     echo "Application Version: ${env.appVersion}"
                 }
             }
@@ -49,10 +48,10 @@ pipeline {
                 script {
                     withAWS(region: 'us-east-1', credentials: 'aws-creds') {
                         sh """
-                            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
-                            docker build -t ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion} .
+                            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${env.ACC_ID}.dkr.ecr.us-east-1.amazonaws.com
+                            docker build -t ${env.ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${env.PROJECT}/${env.COMPONENT}:${env.appVersion} .
                             docker images
-                            docker push ${ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion}
+                            docker push ${env.ACC_ID}.dkr.ecr.us-east-1.amazonaws.com/${env.PROJECT}/${env.COMPONENT}:${env.appVersion}
                         """
                     }
                 }
