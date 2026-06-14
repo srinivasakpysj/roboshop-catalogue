@@ -5,7 +5,6 @@ label 'AGENT-1'
 }
 }
 
-```
 parameters {
     booleanParam(
         name: 'DEPLOY',
@@ -90,6 +89,5 @@ post {
         echo 'Build failed'
     }
 }
-```
 
 }
