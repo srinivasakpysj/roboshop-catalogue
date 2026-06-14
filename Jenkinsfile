@@ -1,92 +1,95 @@
 pipeline {
-    agent {
-        node {
-            label 'AGENT-1'
-        }
-    }
+agent {
+node {
+label 'AGENT-1'
+}
+}
 
-    environment {
-        COURSE = "Jenkins"
-        appVersion = ""
-    }
+```
+parameters {
+    booleanParam(
+        name: 'DEPLOY',
+        defaultValue: false,
+        description: 'Deploy application'
+    )
+}
 
-    options {
-        timeout(time: 30, unit: 'MINUTES')
-        disableConcurrentBuilds()
-    }
+environment {
+    COURSE = "Jenkins"
+    appVersion = ""
+}
 
-    // This is build section information for reference
-    stages {
-        stage('Read Version') {
-            steps {
-                script {
-                    def packageJSON = readJSON file: 'package.json'
-                    env.appVersion = packageJSON.version
-                    echo "app version: ${env.appVersion}"
-                }
-            }
-        }
+options {
+    timeout(time: 30, unit: 'MINUTES')
+    disableConcurrentBuilds()
+}
 
-        // This is Test section information for reference
-        stage('Install Depedencies') {
-            steps {
-                script {
-                    sh """
-                        npm install
-                    """
-                }
-            }
-        }
+stages {
 
-        stage('Build Image') {
-            steps {
-                script {
-                    sh """
-                        docker build -t catalogue:${env.appVersion} .
-                        docker images
-                    """
-                }
-            }
-        }
-
-        stage('Deploy') {
-
-            // input {
-            //     message "Should we continue?"
-            //     ok "Yes, we should."
-            //     submitter "alice,bob"
-
-            //     parameters {
-            //         string(
-            //             name: 'PERSON',
-            //             defaultValue: 'Mr Jenkins',
-            //             description: 'Who should I say hello to?'
-            //         )
-            //     }
-            // }
-
-            when {
-                expression { params.DEPLOY == true }
-            }
-
-            steps {
-                echo "Deploying"
+    stage('Read Version') {
+        steps {
+            script {
+                def packageJSON = readJSON file: 'package.json'
+                env.appVersion = packageJSON.version
+                echo "Application Version: ${env.appVersion}"
             }
         }
     }
 
-    post {
-        always {
-            echo 'I will always say Hello again!'
-            cleanWs()
-        }
-
-        success {
-            echo 'I will run if success'
-        }
-
-        failure {
-            echo 'I will run if failure'
+    stage('Install Dependencies') {
+        steps {
+            sh 'npm install'
         }
     }
+
+    stage('Debug Workspace') {
+        steps {
+            sh '''
+                echo "Current Directory:"
+                pwd
+
+                echo "Workspace Files:"
+                ls -ltr
+            '''
+        }
+    }
+
+    stage('Build Image') {
+        steps {
+            sh """
+                docker build -t catalogue:${env.appVersion} .
+                docker images
+            """
+        }
+    }
+
+    stage('Deploy') {
+        when {
+            expression {
+                return params.DEPLOY
+            }
+        }
+
+        steps {
+            echo "Deploying catalogue:${env.appVersion}"
+        }
+    }
+}
+
+post {
+    always {
+        echo 'Pipeline execution completed'
+        cleanWs()
+    }
+
+    success {
+        echo 'Build completed successfully'
+    }
+
+    failure {
+        echo 'Build failed'
+    }
+}
+```
+
 }
