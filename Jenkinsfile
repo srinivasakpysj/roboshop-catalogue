@@ -37,6 +37,7 @@ pipeline {
                 }
             }
         }
+
         stage('Build Image') {
             steps {
                 script {
@@ -47,6 +48,9 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+
             // input {
             //     message "Should we continue?"
             //     ok "Yes, we should."
@@ -61,9 +65,10 @@ pipeline {
             //     }
             // }
 
-             when { 
-                expression { "$params.DEPLOY" == "true" }
+            when {
+                expression { params.DEPLOY == true }
             }
+
             steps {
                 echo "Deploying"
             }
@@ -85,4 +90,3 @@ pipeline {
         }
     }
 }
-
