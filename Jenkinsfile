@@ -28,9 +28,13 @@ pipeline {
         }
 
         // This is Test section information for reference
-        stage('Test') {
+        stage('Install Depedencies') {
             steps {
-                echo "Testing"
+                script {
+                    sh """
+                        npm install
+                    """
+                }
             }
         }
 
