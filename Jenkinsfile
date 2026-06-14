@@ -21,8 +21,8 @@ pipeline {
             steps {
                 script {
                     def packageJSON = readJSON file: 'package.json'
-                    appVersion = packageJSON.version
-                    echo "app version: ${appVersion}"
+                    env.appVersion = packageJSON.version
+                    echo "app version: ${env.appVersion}"
                 }
             }
         }
@@ -42,7 +42,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                        docker build -t catalogue:${appVersion} .
+                        docker build -t catalogue:${env.appVersion} .
                         docker images
                     """
                 }
